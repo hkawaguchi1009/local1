@@ -19,7 +19,7 @@ function Student() {
     var lastName;
     var firstName;
     var email;
-};
+}
 
 Student.prototype.setId = function(id) {
     this.id = id;
@@ -117,30 +117,23 @@ App.prototype.initialize = function() {
     
     // create an onload handler
     xhr.onload = function() {
-        if(xhr.status !== 200) {
-            var rosterDiv = document.querySelector('div#roster');
-            rosterDiv.innerHTML = '<p>' + roster.innerHTML +
-            + xhr.status +': ' + xhr.statusText + '</p>';
-            return;
+        if(jqXHR.status !== 200) {
+            $("div[id = 'roster']").html('<p>' + roster.innerHTML +
+            + jqXHR.status +': ' + jqXHR.statusText + '</p>');
         }
-        // Assert: response is not an error
+    };
     
+    $.get("http://mcs.drury.edu/ssigman/DUCS_EMS/getAllStudents.php",function(data){
         // load the roster
-        _this.parseRoster(xhr.response);
+        _this.parseRoster(data);
         
         // add the roster to the page
         _this.addRosterTable();
         
-    };
-    
-    xhr.open("GET","http://mcs.drury.edu/ssigman/DUCS_EMS/getAllStudents.php");
-    xhr.responseType = "json";
-    xhr.onerror = function() {
+    },"json").fail(function(jqXHR){
         console.log("The application has thrown an error trying" +
                     " to retreive student data.");
-    }
-    xhr.send();
-    
+    });
 };
 
 // app method that adds the rows to the roster.
@@ -149,25 +142,29 @@ App.prototype.initialize = function() {
 //
 // return - nothing
 App.prototype.addRosterTable = function() {
-    var html = "";   // the html string to add
+    var $html = "";   // the html string to add
+    
+    $("html").append("<tr>");
+    $("html").append("<th>Name</th>");
+    $("html").append("<th>Id</th>");
+    $("html").append("<th>email</th>");
+    $("html").append("<tr>");
     
     // add one table row for each student
     for(var i=0; i<this.roster.length; i++) {
-        html += "<tr>";
-        html += "<td>" + this.roster[i].getFullName() + "</td>";
-        html += "<td>" + this.roster[i].getId() + "</td>";
-        html += "<td>" + this.roster[i].getEmail() + "</td>";
-        html += "</tr>";
+
+        $("html").append("<tr>");
+        $("html").append("<td>" + this.roster[i].getFullName() + "</td>");
+        $("html").append("<td>" + this.roster[i].getId() + "</td>");
+        $("html").append("<td>" + this.roster[i].getEmail() + "</td>");
+        $("html").append("</tr>");
     }
     
     // add the row to the table
-    document.querySelector("table#rosterTable").innerHTML += html;
+    $("table[id = 'rosterTable']").html("html");
     
     // add the number of students
-    html = "";
-    html = '<span id="numRow">Number of Students: ' + this.numStudents +
-           '</span>';
-    document.querySelector("#roster").innerHTML += html;
+    $("#roster").html('<span id="numRow">Number of Students: ' + this.numStudents +'</span>');
 }
 
 /********************************************
